@@ -1,129 +1,159 @@
-# DocuVector - AI-Powered Document Intelligence System
+# DocuVector: AI-Powered Document Intelligence System
+
+## Table of Contents
+1. [Overview](#overview)
+2. [Architecture](#architecture)
+3. [System Components](#system-components)
+   - [AI/ML Pipeline](#aiml-pipeline)
+   - [Vector Database Integration](#vector-database-integration)
+   - [AIOps and Monitoring](#aiops-and-monitoring)
+   - [Security and Compliance](#security-and-compliance)
+   - [Team Collaboration](#team-collaboration)
+4. [Technologies Used](#technologies-used)
+5. [Setup Instructions](#setup-instructions)
+6. [Development Guide](#development-guide)
+7. [Deployment](#deployment)
+8. [Monitoring and Maintenance](#monitoring-and-maintenance)
+9. [Contributing](#contributing)
+10. [License](#license)
 
 ## Overview
-DocuVector is a production-ready AI-powered document intelligence system that combines LangChain, Vector Databases, and AWS services. The system processes documents, extracts insights using LLMs, and provides intelligent search capabilities through vector embeddings.
+DocuVector is an advanced document intelligence system that leverages Generative AI and Vector Databases to provide intelligent document processing, search, and analysis capabilities. The system is built with a focus on scalability, security, and operational excellence.
 
 ## Architecture
 
 ```mermaid
 graph TD
-    A[Client Application] --> B[API Gateway]
-    B --> C[Lambda Functions]
-    C --> D[Document Processing Pipeline]
-    D --> E[LangChain Integration]
-    E --> F[Vector Database]
-    F --> G[LLM Services]
-    H[Monitoring & Logging] --> I[CloudWatch]
-    J[CI/CD Pipeline] --> K[CodeBuild]
-    K --> L[CodeDeploy]
-    M[Infrastructure] --> N[Terraform]
-    N --> O[AWS Resources]
+    subgraph "Client Layer"
+        A[Web Interface] --> B[API Gateway]
+        C[Mobile App] --> B
+    end
+
+    subgraph "Application Layer"
+        B --> D[FastAPI Application]
+        D --> E[Document Processor]
+        D --> F[LLM Integration]
+        D --> G[Vector Search]
+    end
+
+    subgraph "AI/ML Layer"
+        F --> H[LangChain Chains]
+        H --> I[Custom Tools]
+        H --> J[Agents]
+        H --> K[Memory Management]
+        F --> L[Model Registry]
+        L --> M[MLflow Tracking]
+        L --> N[DVC Versioning]
+    end
+
+    subgraph "Vector Database Layer"
+        G --> O[Pinecone]
+        O --> P[Index Management]
+        O --> Q[Scaling Policies]
+        O --> R[Backup System]
+    end
+
+    subgraph "Infrastructure Layer"
+        S[ECS Cluster] --> T[Auto Scaling]
+        S --> U[Load Balancer]
+        V[CloudWatch] --> W[Monitoring]
+        V --> X[Logging]
+        Y[Security Hub] --> Z[Compliance]
+    end
+
+    subgraph "AIOps Layer"
+        AA[Predictive Analytics] --> AB[Anomaly Detection]
+        AA --> AC[Metric Forecasting]
+        AA --> AD[Automated Remediation]
+        AE[Team Collaboration] --> AF[Incident Response]
+        AE --> AG[Code Review]
+    end
+
+    E --> O
+    F --> O
+    D --> S
+    S --> V
+    V --> AA
+    AA --> AE
 ```
 
-### System Components
+## System Components
 
-1. **Document Processing Pipeline**
-   - AWS Lambda for serverless document processing
-   - LangChain for document chunking and embedding
-   - Vector Database (Pinecone) for semantic search
+### AI/ML Pipeline
+- **LangChain Integration**: Advanced chains, custom tools, and agents
+- **Model Management**: Versioning, tracking, and lifecycle management
+- **Fine-tuning**: Custom model training and optimization
+- **Bias Detection**: Ethical AI considerations and bias monitoring
 
-2. **AI/ML Integration**
-   - LangChain for LLM orchestration
-   - AWS SageMaker for model deployment
-   - Custom ML models for document classification
+### Vector Database Integration
+- **Pinecone Configuration**: Optimized index setup and management
+- **Scaling Policies**: Automatic scaling based on query patterns
+- **Backup System**: Regular backups and disaster recovery
+- **Security**: Access control and encryption
 
-3. **DevOps Infrastructure**
-   - Infrastructure as Code (Terraform)
-   - CI/CD Pipeline (AWS CodePipeline)
-   - Container Orchestration (ECS)
+### AIOps and Monitoring
+- **Predictive Analytics**: Anomaly detection and metric forecasting
+- **Automated Remediation**: Self-healing capabilities
+- **Performance Optimization**: Resource optimization recommendations
+- **Dashboard**: Real-time monitoring and alerts
 
-4. **Monitoring & Observability**
-   - CloudWatch for logging
-   - Prometheus & Grafana for metrics
-   - AIOps for anomaly detection
+### Security and Compliance
+- **AWS Security Hub**: Centralized security management
+- **GuardDuty**: Threat detection
+- **WAF**: Web application firewall
+- **Compliance Monitoring**: Automated compliance checks
 
-## Prerequisites
-
-- AWS Account with appropriate permissions
-- Python 3.9+
-- Docker
-- Terraform
-- AWS CLI
-
-## Setup Instructions
-
-1. **Clone the Repository**
-   ```bash
-   git clone https://github.com/yourusername/docuvector.git
-   cd docuvector
-   ```
-
-2. **Install Dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Configure AWS Credentials**
-   ```bash
-   aws configure
-   ```
-
-4. **Deploy Infrastructure**
-   ```bash
-   cd infrastructure
-   terraform init
-   terraform plan
-   terraform apply
-   ```
-
-5. **Deploy Application**
-   ```bash
-   cd ..
-   ./deploy.sh
-   ```
-
-## Project Structure
-
-```
-.
-├── app/                    # Application code
-│   ├── api/               # API endpoints
-│   ├── processing/        # Document processing
-│   └── models/            # ML models
-├── infrastructure/        # Terraform configurations
-├── monitoring/           # Monitoring setup
-├── tests/               # Test suite
-└── docs/                # Documentation
-```
-
-## Key Features
-
-- Document processing and text extraction
-- Semantic search using vector embeddings
-- AI-powered document classification
-- Automated CI/CD pipeline
-- Infrastructure as Code
-- Comprehensive monitoring and logging
-- Scalable cloud architecture
+### Team Collaboration
+- **Code Review**: Automated review workflows
+- **Incident Response**: Team coordination and alerting
+- **Metrics Dashboard**: Team performance tracking
+- **Documentation**: Automated documentation generation
 
 ## Technologies Used
-
-- **AI/ML**: LangChain, OpenAI GPT, AWS SageMaker
-- **Vector Database**: Pinecone
-- **Cloud**: AWS (Lambda, S3, ECS, API Gateway)
-- **DevOps**: Terraform, Docker, GitHub Actions
+- **AI/ML**: LangChain, Bedrock, MLflow, DVC
+- **Vector Databases**: Pinecone
+- **Cloud Services**: AWS (ECS, S3, Lambda, SageMaker)
 - **Monitoring**: CloudWatch, Prometheus, Grafana
+- **CI/CD**: GitHub Actions, Terraform
+- **Security**: AWS Security Hub, GuardDuty, WAF
+
+## Setup Instructions
+1. Clone the repository
+2. Install dependencies: `pip install -r requirements.txt`
+3. Configure AWS credentials
+4. Set up MLflow tracking server
+5. Initialize Pinecone
+6. Deploy infrastructure: `terraform apply`
+
+## Development Guide
+1. Set up development environment
+2. Follow coding standards
+3. Write tests for new features
+4. Use pre-commit hooks
+5. Document changes
+
+## Deployment
+1. Run tests: `pytest`
+2. Build containers: `docker build`
+3. Deploy to ECS: `terraform apply`
+4. Verify deployment
+5. Monitor initial metrics
+
+## Monitoring and Maintenance
+1. Check CloudWatch dashboards
+2. Review security findings
+3. Monitor model performance
+4. Update documentation
+5. Perform regular backups
 
 ## Contributing
-
 1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+2. Create feature branch
+3. Submit pull request
+4. Address review comments
+5. Merge after approval
 
 ## License
-
 MIT License
 
 ## Contact

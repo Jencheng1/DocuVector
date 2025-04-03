@@ -10,8 +10,7 @@
 7. [Monitoring and Maintenance](#monitoring-and-maintenance)
 8. [Contributing](#contributing)
 9. [License](#license)
-10. [System Components](#system-components)
-11. [Contact](#contact)
+10. [Contact](#contact)
 
 ## Overview
 DocuVector is an advanced document intelligence system that leverages Generative AI and Vector Databases to provide intelligent document processing, search, and analysis capabilities. The system is built with a focus on scalability, security, and operational excellence.
@@ -678,38 +677,6 @@ The Data Pipeline components work together to handle data ingestion, processing,
 
 ## License
 MIT License
-
-## System Components
-
-### AI/ML Pipeline
-- **LangChain Integration**: Advanced chains, custom tools, and agents
-- **Model Management**: Versioning, tracking, and lifecycle management
-- **Fine-tuning**: Custom model training and optimization
-- **Bias Detection**: Ethical AI considerations and bias monitoring
-
-### Vector Database Integration
-- **Pinecone Configuration**: Optimized index setup and management
-- **Scaling Policies**: Automatic scaling based on query patterns
-- **Backup System**: Regular backups and disaster recovery
-- **Security**: Access control and encryption
-
-### AIOps and Monitoring
-- **Predictive Analytics**: Anomaly detection and metric forecasting
-- **Automated Remediation**: Self-healing capabilities
-- **Performance Optimization**: Resource optimization recommendations
-- **Dashboard**: Real-time monitoring and alerts
-
-### Security and Compliance
-- **AWS Security Hub**: Centralized security management
-- **GuardDuty**: Threat detection
-- **WAF**: Web application firewall
-- **Compliance Monitoring**: Automated compliance checks
-
-### Team Collaboration
-- **Code Review**: Automated review workflows
-- **Incident Response**: Team coordination and alerting
-- **Metrics Dashboard**: Team performance tracking
-- **Documentation**: Automated documentation generation
 
 ## Contact
 For questions or support, please open an issue in the repository. 

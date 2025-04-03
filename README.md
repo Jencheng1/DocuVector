@@ -679,4 +679,449 @@ The Data Pipeline components work together to handle data ingestion, processing,
 MIT License
 
 ## Contact
-For questions or support, please open an issue in the repository. 
+For questions or support, please open an issue in the repository.
+
+## Architecture
+
+### Infrastructure as Code (IaC) Flow
+
+#### Jenkins Pipeline Flow
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+    style G fill:#f9f,stroke:#333,stroke-width:2px
+    style H fill:#bbf,stroke:#333,stroke-width:2px
+    style I fill:#f9f,stroke:#333,stroke-width:2px
+    style J fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Jenkins Pipeline"
+        A[Source Code<br/>GitHub] --> B[Build Stage<br/>Docker Image]
+        B --> C[Test Stage<br/>Unit & Integration]
+        C --> D[Terraform Stage<br/>Infrastructure]
+        D --> E[Ansible Stage<br/>Configuration]
+        E --> F[Deploy Stage<br/>ECS/EKS]
+        F --> G[Verify Stage<br/>Health Checks]
+        G --> H[Notify Stage<br/>Slack/Email]
+        I[Security Scan<br/>Vulnerability Check] --> J[Compliance Check<br/>Policy Validation]
+        C --> I
+        I --> D
+    end
+```
+
+**Technical Details:**
+- Pipeline triggers on main branch commits and pull requests
+- Parallel test execution with 90% coverage requirement
+- Infrastructure validation before deployment
+- Automated rollback on failure
+- Integration with monitoring systems
+- Security scanning with OWASP ZAP
+- Compliance checks against CIS benchmarks
+
+**Example Pipeline Configuration:**
+```groovy
+pipeline {
+    agent any
+    environment {
+        AWS_REGION = 'us-east-1'
+        ECR_REPOSITORY = 'docuvector'
+        EKS_CLUSTER = 'docuvector-cluster'
+        EKS_NAMESPACE = 'docuvector'
+    }
+    stages {
+        stage('Build') {
+            steps {
+                sh 'docker build -t ${ECR_REPOSITORY}:${BUILD_NUMBER} .'
+            }
+        }
+        stage('Test') {
+            parallel {
+                stage('Unit Tests') {
+                    steps {
+                        sh 'python -m pytest tests/unit/'
+                    }
+                }
+                stage('Integration Tests') {
+                    steps {
+                        sh 'python -m pytest tests/integration/'
+                    }
+                }
+                stage('Security Scan') {
+                    steps {
+                        sh 'zap-baseline.py -t https://${STAGING_URL}'
+                    }
+                }
+            }
+        }
+        stage('Terraform') {
+            steps {
+                dir('infrastructure') {
+                    sh 'terraform init'
+                    sh 'terraform plan -out=tfplan'
+                    sh 'terraform apply -auto-approve tfplan'
+                }
+            }
+        }
+        stage('Ansible') {
+            steps {
+                dir('ansible') {
+                    sh 'ansible-playbook -i inventory/hosts deploy.yml'
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh """
+                    aws eks update-kubeconfig --name ${EKS_CLUSTER}
+                    kubectl apply -f k8s/
+                """
+            }
+        }
+    }
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            slackSend channel: '#deployments', message: "Deployment successful: ${BUILD_URL}"
+        }
+        failure {
+            slackSend channel: '#deployments', message: "Deployment failed: ${BUILD_URL}"
+        }
+    }
+}
+```
+
+#### Terraform Infrastructure Flow
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+    style G fill:#f9f,stroke:#333,stroke-width:2px
+    style H fill:#bbf,stroke:#333,stroke-width:2px
+    style I fill:#f9f,stroke:#333,stroke-width:2px
+    style J fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Terraform Infrastructure"
+        A[VPC<br/>Network] --> B[Subnets<br/>Public/Private]
+        A --> C[Security Groups<br/>Firewall Rules]
+        D[EKS<br/>Kubernetes] --> E[Node Groups<br/>Auto-scaling]
+        D --> F[Add-ons<br/>CNI/EBS/CSI]
+        G[S3<br/>Storage] --> H[Backups<br/>Data Persistence]
+        I[IAM<br/>Access Control] --> J[Roles<br/>Policies]
+        B --> D
+        C --> D
+        E --> F
+        F --> H
+        J --> D
+    end
+```
+
+**Technical Details:**
+- VPC with public and private subnets
+- EKS cluster with managed node groups
+- Auto-scaling based on CPU/memory metrics
+- S3 buckets for backups and artifacts
+- IAM roles with least privilege
+- Security groups with strict rules
+- Network policies with Calico CNI
+
+**Example Terraform Configuration:**
+```hcl
+# EKS Cluster
+resource "aws_eks_cluster" "docuvector" {
+  name     = "docuvector-cluster"
+  role_arn = aws_iam_role.eks_cluster.arn
+  version  = "1.28"
+
+  vpc_config {
+    subnet_ids = [aws_subnet.private[*].id]
+    security_group_ids = [aws_security_group.eks_cluster.id]
+  }
+
+  enabled_cluster_log_types = ["api", "audit", "authenticator"]
+}
+
+# Node Group
+resource "aws_eks_node_group" "gpu" {
+  cluster_name    = aws_eks_cluster.docuvector.name
+  node_group_name = "gpu-nodes"
+  node_role_arn   = aws_iam_role.eks_node.arn
+  subnet_ids      = aws_subnet.private[*].id
+
+  scaling_config {
+    desired_size = 2
+    max_size     = 10
+    min_size     = 2
+  }
+
+  instance_types = ["g4dn.xlarge"]
+  capacity_type  = "ON_DEMAND"
+}
+
+# Add-ons
+resource "aws_eks_addon" "cni" {
+  cluster_name = aws_eks_cluster.docuvector.name
+  addon_name   = "vpc-cni"
+}
+
+resource "aws_eks_addon" "csi" {
+  cluster_name = aws_eks_cluster.docuvector.name
+  addon_name   = "aws-ebs-csi-driver"
+}
+```
+
+#### Ansible Configuration Flow
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+    style G fill:#f9f,stroke:#333,stroke-width:2px
+    style H fill:#bbf,stroke:#333,stroke-width:2px
+    style I fill:#f9f,stroke:#333,stroke-width:2px
+    style J fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Ansible Configuration"
+        A[Inventory<br/>Host Management] --> B[Playbooks<br/>Configuration]
+        B --> C[Roles<br/>Reusable Tasks]
+        D[Variables<br/>Environment Config] --> E[Templates<br/>Dynamic Config]
+        F[Handlers<br/>Service Control] --> G[Tasks<br/>Execution Steps]
+        H[Vault<br/>Secrets Management] --> I[Encryption<br/>Secure Storage]
+        J[Validation<br/>Pre-flight Checks] --> B
+        C --> E
+        E --> G
+        G --> H
+    end
+```
+
+**Technical Details:**
+- Dynamic inventory with AWS EC2 plugin
+- Role-based configuration management
+- Environment-specific variables
+- Encrypted secrets with Ansible Vault
+- Pre-flight validation checks
+- Idempotent task execution
+- Automated service management
+
+**Example Ansible Playbook:**
+```yaml
+---
+- name: Configure EKS Nodes
+  hosts: eks_nodes
+  become: yes
+  vars:
+    app_version: "1.0.0"
+    app_port: 8000
+    app_env: "production"
+
+  roles:
+    - common
+    - docker
+    - kubernetes
+    - monitoring
+
+  tasks:
+    - name: Install dependencies
+      apt:
+        name: "{{ packages }}"
+        state: present
+      vars:
+        packages:
+          - python3-pip
+          - docker.io
+          - nvidia-container-toolkit
+
+    - name: Configure NVIDIA runtime
+      template:
+        src: templates/nvidia-runtime.json.j2
+        dest: /etc/docker/daemon.json
+        mode: '0644'
+      notify: restart docker
+
+    - name: Configure monitoring
+      template:
+        src: templates/prometheus.yml.j2
+        dest: /etc/prometheus/prometheus.yml
+        mode: '0644'
+      notify: restart prometheus
+
+  handlers:
+    - name: restart docker
+      service:
+        name: docker
+        state: restarted
+
+    - name: restart prometheus
+      service:
+        name: prometheus
+        state: restarted
+```
+
+#### IaC Integration Flow
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+    style G fill:#f9f,stroke:#333,stroke-width:2px
+    style H fill:#bbf,stroke:#333,stroke-width:2px
+    style I fill:#f9f,stroke:#333,stroke-width:2px
+    style J fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "IaC Integration"
+        A[Jenkins<br/>Pipeline] --> B[Terraform<br/>Infrastructure]
+        A --> C[Ansible<br/>Configuration]
+        B --> D[Cloud Resources<br/>AWS]
+        C --> E[System Config<br/>Servers]
+        D --> F[Application<br/>Deployment]
+        E --> F
+        F --> G[Monitoring<br/>Health Checks]
+        G --> H[Feedback<br/>Pipeline Status]
+        I[Security<br/>Compliance] --> J[Validation<br/>Policy Checks]
+        B --> I
+        C --> I
+    end
+```
+
+**Technical Details:**
+- Jenkins orchestrates the entire deployment process
+- Terraform manages cloud resources with state tracking
+- Ansible handles system configuration and application deployment
+- Security and compliance checks at each stage
+- Automated validation and rollback capabilities
+- Integration with monitoring and alerting systems
+
+#### EKS Integration and Scaling
+
+##### EKS Cluster Architecture
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+    style G fill:#f9f,stroke:#333,stroke-width:2px
+    style H fill:#bbf,stroke:#333,stroke-width:2px
+    style I fill:#f9f,stroke:#333,stroke-width:2px
+    style J fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "EKS Cluster"
+        A[Control Plane<br/>Managed by AWS] --> B[Worker Nodes<br/>Auto-scaling Group]
+        B --> C[Node Groups<br/>GPU/CPU Optimized]
+        D[Cluster Autoscaler<br/>Horizontal Scaling] --> E[Pod Autoscaler<br/>Vertical Scaling]
+        F[Load Balancer<br/>ALB/NLB] --> G[Ingress Controller<br/>Traffic Management]
+        H[Monitoring<br/>Prometheus/Grafana] --> I[Logging<br/>CloudWatch/Fluentd]
+        J[Storage<br/>EBS/EFS] --> B
+        H --> A
+        H --> B
+    end
+```
+
+**Technical Details:**
+- EKS version: 1.28
+- Node groups: GPU-optimized for ML workloads
+- Auto-scaling: 2-10 nodes based on demand
+- Pod resource limits: CPU 2, Memory 8Gi
+- Network policy: Calico CNI
+- Storage: EBS CSI driver with gp3 volumes
+- Monitoring: Prometheus with 15-day retention
+- Logging: Fluentd to CloudWatch
+
+##### EKS Deployment Flow
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+    style G fill:#f9f,stroke:#333,stroke-width:2px
+    style H fill:#bbf,stroke:#333,stroke-width:2px
+    style I fill:#f9f,stroke:#333,stroke-width:2px
+    style J fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "EKS Deployment"
+        A[Code Push<br/>GitHub] --> B[CI/CD Pipeline<br/>Jenkins/ArgoCD]
+        B --> C[Image Build<br/>Docker]
+        C --> D[Image Push<br/>ECR]
+        D --> E[Helm Chart<br/>Deployment]
+        E --> F[K8s Resources<br/>Apply]
+        F --> G[Health Checks<br/>Readiness]
+        G --> H[Monitoring<br/>Prometheus]
+        I[Security Scan<br/>Trivy] --> J[Compliance Check<br/>OPA]
+        C --> I
+        I --> D
+    end
+```
+
+**Technical Details:**
+- Automated deployment with Jenkins/ArgoCD
+- Container scanning with Trivy
+- Policy enforcement with OPA
+- Helm charts for application deployment
+- Health checks with readiness probes
+- Monitoring integration with Prometheus
+- Automated rollback on failure
+
+**Example Kubernetes Configuration:**
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docuvector
+  namespace: docuvector
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: docuvector
+  template:
+    metadata:
+      labels:
+        app: docuvector
+    spec:
+      containers:
+      - name: docuvector
+        image: ${ECR_REPOSITORY}:${BUILD_NUMBER}
+        ports:
+        - containerPort: 8000
+        resources:
+          limits:
+            cpu: "2"
+            memory: "8Gi"
+            nvidia.com/gpu: "1"
+          requests:
+            cpu: "1"
+            memory: "4Gi"
+            nvidia.com/gpu: "1"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+``` 

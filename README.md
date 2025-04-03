@@ -4,11 +4,6 @@
 1. [Overview](#overview)
 2. [Architecture](#architecture)
 3. [System Components](#system-components)
-   - [AI/ML Pipeline](#aiml-pipeline)
-   - [Vector Database Integration](#vector-database-integration)
-   - [AIOps and Monitoring](#aiops-and-monitoring)
-   - [Security and Compliance](#security-and-compliance)
-   - [Team Collaboration](#team-collaboration)
 4. [Technologies Used](#technologies-used)
 5. [Setup Instructions](#setup-instructions)
 6. [Development Guide](#development-guide)
@@ -16,6 +11,7 @@
 8. [Monitoring and Maintenance](#monitoring-and-maintenance)
 9. [Contributing](#contributing)
 10. [License](#license)
+11. [Contact](#contact)
 
 ## Overview
 DocuVector is an advanced document intelligence system that leverages Generative AI and Vector Databases to provide intelligent document processing, search, and analysis capabilities. The system is built with a focus on scalability, security, and operational excellence.
@@ -716,7 +712,6 @@ The Data Pipeline components work together to handle data ingestion, processing,
 MIT License
 
 ## Contact
-
 For questions or support, please open an issue in the repository.
 
 ## Weaviate Integration

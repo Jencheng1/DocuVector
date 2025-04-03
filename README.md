@@ -67,128 +67,459 @@ graph TD
 
 ### Detailed Component Diagrams
 
-#### AI/ML Pipeline
+#### 1. AI/ML Pipeline Components
+
+##### LangChain Integration
 ```mermaid
 graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+    style G fill:#f9f,stroke:#333,stroke-width:2px
+    style H fill:#bbf,stroke:#333,stroke-width:2px
+    style I fill:#bbf,stroke:#333,stroke-width:2px
+    style J fill:#f9f,stroke:#333,stroke-width:2px
+    style K fill:#bbf,stroke:#333,stroke-width:2px
+    style L fill:#bbf,stroke:#333,stroke-width:2px
+
     subgraph "LangChain Integration"
-        A[Sequential Chain] --> B[Document Processing]
-        A --> C[Information Extraction]
-        D[Router Chain] --> E[Query Routing]
-        D --> F[Task Distribution]
-        G[Custom Tools] --> H[Vector Search]
-        G --> I[Document Processing]
-        J[Agents] --> K[Task Execution]
-        J --> L[Decision Making]
-    end
-
-    subgraph "Model Management"
-        M[MLflow] --> N[Experiment Tracking]
-        M --> O[Model Registry]
-        P[DVC] --> Q[Data Versioning]
-        P --> R[Pipeline Versioning]
-        S[Fine-tuning] --> T[Model Optimization]
-        S --> U[Performance Tuning]
-    end
-
-    subgraph "Ethics & Governance"
-        V[Bias Detection] --> W[Content Analysis]
-        V --> X[Fairness Metrics]
-        Y[Ethics Monitoring] --> Z[Compliance Checks]
-        Y --> AA[Risk Assessment]
+        A[Sequential Chain<br/>Document Processing Flow] --> B[Document Processing<br/>Text Extraction]
+        A --> C[Information Extraction<br/>Entity Recognition]
+        D[Router Chain<br/>Query Management] --> E[Query Routing<br/>Intent Classification]
+        D --> F[Task Distribution<br/>Load Balancing]
+        G[Custom Tools<br/>Extended Capabilities] --> H[Vector Search<br/>Similarity Matching]
+        G --> I[Document Processing<br/>Format Conversion]
+        J[Agents<br/>Autonomous Processing] --> K[Task Execution<br/>Automated Workflows]
+        J --> L[Decision Making<br/>Context Analysis]
     end
 ```
+
+The LangChain Integration layer handles document processing, query routing, and autonomous decision-making through a combination of sequential and router chains, custom tools, and intelligent agents.
+
+##### Model Management
+```mermaid
+graph TD
+    style M fill:#f9f,stroke:#333,stroke-width:2px
+    style N fill:#bbf,stroke:#333,stroke-width:2px
+    style O fill:#bbf,stroke:#333,stroke-width:2px
+    style P fill:#f9f,stroke:#333,stroke-width:2px
+    style Q fill:#bbf,stroke:#333,stroke-width:2px
+    style R fill:#bbf,stroke:#333,stroke-width:2px
+    style S fill:#f9f,stroke:#333,stroke-width:2px
+    style T fill:#bbf,stroke:#333,stroke-width:2px
+    style U fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Model Management"
+        M[MLflow<br/>Model Lifecycle] --> N[Experiment Tracking<br/>Performance Metrics]
+        M --> O[Model Registry<br/>Version Control]
+        P[DVC<br/>Data Management] --> Q[Data Versioning<br/>Dataset Tracking]
+        P --> R[Pipeline Versioning<br/>Workflow Control]
+        S[Fine-tuning<br/>Model Optimization] --> T[Model Optimization<br/>Hyperparameter Tuning]
+        S --> U[Performance Tuning<br/>Resource Optimization]
+    end
+```
+
+The Model Management system provides comprehensive tracking and versioning of models, data, and pipelines, ensuring reproducibility and performance optimization.
+
+##### Ethics & Governance
+```mermaid
+graph TD
+    style V fill:#f9f,stroke:#333,stroke-width:2px
+    style W fill:#bbf,stroke:#333,stroke-width:2px
+    style X fill:#bbf,stroke:#333,stroke-width:2px
+    style Y fill:#f9f,stroke:#333,stroke-width:2px
+    style Z fill:#bbf,stroke:#333,stroke-width:2px
+    style AA fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Ethics & Governance"
+        V[Bias Detection<br/>Fairness Analysis] --> W[Content Analysis<br/>Pattern Recognition]
+        V --> X[Fairness Metrics<br/>Statistical Analysis]
+        Y[Ethics Monitoring<br/>Continuous Assessment] --> Z[Compliance Checks<br/>Regulatory Requirements]
+        Y --> AA[Risk Assessment<br/>Impact Analysis]
+    end
+```
+
+The Ethics & Governance framework ensures responsible AI deployment through continuous monitoring, bias detection, and compliance verification.
+
+#### 2. Vector Database Components
+
+##### Pinecone Configuration
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#bbf,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Pinecone Configuration"
+        A[Index Setup<br/>Vector Storage] --> B[Dimension: 1536<br/>Embedding Size]
+        A --> C[Metric: Cosine<br/>Similarity Measure]
+        A --> D[Pods: 1<br/>Initial Capacity]
+        A --> E[Replicas: 1<br/>High Availability]
+    end
+```
+
+The Pinecone Configuration defines the vector database setup with optimized parameters for document embeddings and similarity search.
+
+##### Scaling & Management
+```mermaid
+graph TD
+    style F fill:#f9f,stroke:#333,stroke-width:2px
+    style G fill:#bbf,stroke:#333,stroke-width:2px
+    style H fill:#bbf,stroke:#333,stroke-width:2px
+    style I fill:#f9f,stroke:#333,stroke-width:2px
+    style J fill:#bbf,stroke:#333,stroke-width:2px
+    style K fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Scaling & Management"
+        F[Auto-scaling<br/>Resource Management] --> G[Query-based<br/>Demand Scaling]
+        F --> H[Resource-based<br/>Capacity Planning]
+        I[Backup<br/>Data Protection] --> J[Daily Snapshots<br/>Point-in-time Recovery]
+        I --> K[Disaster Recovery<br/>Business Continuity]
+    end
+```
+
+The Scaling & Management system ensures optimal resource utilization and data protection through automated scaling and backup strategies.
+
+##### Security
+```mermaid
+graph TD
+    style L fill:#f9f,stroke:#333,stroke-width:2px
+    style M fill:#bbf,stroke:#333,stroke-width:2px
+    style N fill:#bbf,stroke:#333,stroke-width:2px
+    style O fill:#f9f,stroke:#333,stroke-width:2px
+    style P fill:#bbf,stroke:#333,stroke-width:2px
+    style Q fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Security"
+        L[Access Control<br/>Authentication] --> M[IAM Roles<br/>Permission Management]
+        L --> N[API Keys<br/>Service Authentication]
+        O[Encryption<br/>Data Protection] --> P[At Rest<br/>Storage Security]
+        O --> Q[In Transit<br/>Network Security]
+    end
+```
+
+The Security layer implements comprehensive access control and encryption mechanisms to protect sensitive data.
+
+#### 3. AIOps Components
+
+##### Predictive Analytics
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#f9f,stroke:#333,stroke-width:2px
+    style D fill:#bbf,stroke:#333,stroke-width:2px
+    style E fill:#f9f,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Predictive Analytics"
+        A[Isolation Forest<br/>Anomaly Detection] --> B[System Health<br/>Performance Monitoring]
+        C[Prophet<br/>Time Series Analysis] --> D[Metric Forecasting<br/>Resource Planning]
+        E[Performance Analysis<br/>Optimization Engine] --> F[Resource Optimization<br/>Cost Efficiency]
+    end
+```
+
+The Predictive Analytics system leverages machine learning algorithms to detect anomalies, forecast system metrics, and optimize resource utilization for cost-effective operations.
+
+##### Automated Remediation
+```mermaid
+graph TD
+    style G fill:#f9f,stroke:#333,stroke-width:2px
+    style H fill:#bbf,stroke:#333,stroke-width:2px
+    style I fill:#f9f,stroke:#333,stroke-width:2px
+    style J fill:#bbf,stroke:#333,stroke-width:2px
+    style K fill:#f9f,stroke:#333,stroke-width:2px
+    style L fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Automated Remediation"
+        G[High CPU<br/>Resource Alert] --> H[Scale Out<br/>Horizontal Scaling]
+        I[High Memory<br/>Memory Pressure] --> J[Increase Allocation<br/>Vertical Scaling]
+        K[High Latency<br/>Performance Issue] --> L[Optimize Queries<br/>Query Tuning]
+    end
+```
+
+The Automated Remediation system provides self-healing capabilities by automatically responding to system alerts and implementing predefined remediation actions.
+
+##### Monitoring
+```mermaid
+graph TD
+    style M fill:#f9f,stroke:#333,stroke-width:2px
+    style N fill:#bbf,stroke:#333,stroke-width:2px
+    style O fill:#bbf,stroke:#333,stroke-width:2px
+    style P fill:#f9f,stroke:#333,stroke-width:2px
+    style Q fill:#bbf,stroke:#333,stroke-width:2px
+    style R fill:#f9f,stroke:#333,stroke-width:2px
+    style S fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Monitoring"
+        M[CloudWatch<br/>AWS Monitoring] --> N[Logs<br/>System Events]
+        M --> O[Metrics<br/>Performance Data]
+        P[Prometheus<br/>Time Series DB] --> Q[Time Series<br/>Historical Data]
+        R[Grafana<br/>Visualization] --> S[Dashboards<br/>Real-time Views]
+    end
+```
+
+The Monitoring system provides comprehensive observability through log aggregation, metric collection, and real-time visualization of system performance.
+
+#### 4. Security Components
+
+##### Security Services
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#f9f,stroke:#333,stroke-width:2px
+    style D fill:#bbf,stroke:#333,stroke-width:2px
+    style E fill:#f9f,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Security Services"
+        A[Security Hub<br/>Centralized Security] --> B[Findings<br/>Security Insights]
+        C[GuardDuty<br/>Threat Intelligence] --> D[Threat Detection<br/>Malicious Activity]
+        E[WAF<br/>Web Protection] --> F[Web Protection<br/>Attack Prevention]
+    end
+```
+
+The Security Services layer provides comprehensive threat detection and prevention through centralized security management and real-time threat intelligence.
+
+##### Compliance
+```mermaid
+graph TD
+    style G fill:#f9f,stroke:#333,stroke-width:2px
+    style H fill:#bbf,stroke:#333,stroke-width:2px
+    style I fill:#f9f,stroke:#333,stroke-width:2px
+    style J fill:#bbf,stroke:#333,stroke-width:2px
+    style K fill:#f9f,stroke:#333,stroke-width:2px
+    style L fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Compliance"
+        G[AWS Config<br/>Resource Inventory] --> H[Rules<br/>Compliance Checks]
+        I[CloudTrail<br/>Activity Logging] --> J[Audit Logs<br/>Activity Tracking]
+        K[KMS<br/>Key Management] --> L[Encryption<br/>Data Protection]
+    end
+```
+
+The Compliance system ensures adherence to security standards through automated compliance checks, comprehensive audit logging, and robust encryption management.
+
+##### Network Security
+```mermaid
+graph TD
+    style M fill:#f9f,stroke:#333,stroke-width:2px
+    style N fill:#bbf,stroke:#333,stroke-width:2px
+    style O fill:#f9f,stroke:#333,stroke-width:2px
+    style P fill:#bbf,stroke:#333,stroke-width:2px
+    style Q fill:#f9f,stroke:#333,stroke-width:2px
+    style R fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Network Security"
+        M[VPC<br/>Network Isolation] --> N[Subnets<br/>Network Segmentation]
+        O[NACLs<br/>Network ACLs] --> P[Access Control<br/>Traffic Filtering]
+        Q[Security Groups<br/>Instance Firewall] --> R[Traffic Rules<br/>Port Management]
+    end
+```
+
+The Network Security layer implements a defense-in-depth strategy through network isolation, traffic filtering, and instance-level security controls.
+
+#### 5. Team Collaboration Components
+
+##### Development Tools
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#f9f,stroke:#333,stroke-width:2px
+    style D fill:#bbf,stroke:#333,stroke-width:2px
+    style E fill:#f9f,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Development Tools"
+        A[CodeCommit<br/>Source Control] --> B[Version Control<br/>Branch Management]
+        C[CodeBuild<br/>Build System] --> D[CI/CD<br/>Pipeline Automation]
+        E[CodePipeline<br/>Deployment] --> F[Deployment<br/>Environment Management]
+    end
+```
+
+The Development Tools system provides a comprehensive development workflow, from source control to deployment, ensuring consistent and automated software delivery.
+
+##### Collaboration
+```mermaid
+graph TD
+    style G fill:#f9f,stroke:#333,stroke-width:2px
+    style H fill:#bbf,stroke:#333,stroke-width:2px
+    style I fill:#f9f,stroke:#333,stroke-width:2px
+    style J fill:#bbf,stroke:#333,stroke-width:2px
+    style K fill:#f9f,stroke:#333,stroke-width:2px
+    style L fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Collaboration"
+        G[Chime<br/>Team Communication] --> H[Team Channels<br/>Project Discussions]
+        I[SNS<br/>Notification Service] --> J[Notifications<br/>Event Alerts]
+        K[SQS<br/>Message Queue] --> L[Task Management<br/>Work Distribution]
+    end
+```
+
+The Collaboration system enables effective team communication and task management through integrated messaging, notifications, and task distribution.
+
+##### Monitoring
+```mermaid
+graph TD
+    style M fill:#f9f,stroke:#333,stroke-width:2px
+    style N fill:#bbf,stroke:#333,stroke-width:2px
+    style O fill:#f9f,stroke:#333,stroke-width:2px
+    style P fill:#bbf,stroke:#333,stroke-width:2px
+    style Q fill:#f9f,stroke:#333,stroke-width:2px
+    style R fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Monitoring"
+        M[Dashboards<br/>Team Analytics] --> N[Team Metrics<br/>Performance Tracking]
+        O[Reports<br/>Analysis Tools] --> P[Performance<br/>Team Insights]
+        Q[Alerts<br/>Notification System] --> R[Incidents<br/>Issue Management]
+    end
+```
+
+The Monitoring system provides comprehensive team performance tracking and incident management through real-time dashboards and automated alerts.
+
+### Component Relationships
+
+#### AI/ML Pipeline Integration
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "AI/ML Pipeline Integration"
+        A[LangChain<br/>Orchestration Layer] --> B[Document Processing<br/>Text Extraction & Analysis]
+        A --> C[Model Management<br/>Version Control & Tracking]
+        D[Ethics & Governance<br/>Compliance Layer] --> E[Compliance Monitoring<br/>Bias Detection & Fairness]
+        B --> C
+        C --> E
+    end
+```
+
+The AI/ML Pipeline components work together to process documents, manage models, and ensure ethical compliance. LangChain orchestrates the document processing and model management workflows, while the Ethics & Governance system monitors compliance throughout the pipeline.
+
+**Technical Details:**
+- LangChain uses sequential chains for document processing with a maximum token limit of 4096
+- Model Management integrates with MLflow for experiment tracking and model versioning
+- Ethics & Governance system performs real-time bias detection using statistical analysis
+- Document processing includes OCR, text extraction, and entity recognition
+- Model versioning includes metadata tracking and performance metrics
+
+#### Infrastructure Integration
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Infrastructure Integration"
+        A[AIOps<br/>Operational Intelligence] --> B[Monitoring<br/>Real-time Metrics]
+        A --> C[Automated Remediation<br/>Self-healing]
+        D[Security<br/>Protection Layer] --> E[Compliance<br/>Standards Enforcement]
+        B --> C
+        C --> E
+    end
+```
+
+The Infrastructure components are tightly integrated to provide comprehensive monitoring, automated remediation, and security compliance. AIOps drives the monitoring and remediation processes, while the Security system ensures compliance across all infrastructure components.
+
+**Technical Details:**
+- AIOps uses Isolation Forest for anomaly detection with a 99.9% confidence interval
+- Monitoring system collects metrics at 1-minute intervals with 15-day retention
+- Automated remediation triggers scaling actions when CPU > 80% for 5 minutes
+- Security system performs continuous vulnerability scanning
+- Compliance checks run every 6 hours with automated reporting
+
+#### Team Collaboration Integration
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Team Collaboration Integration"
+        A[Development Tools<br/>CI/CD Pipeline] --> B[Version Control<br/>Git Flow]
+        A --> C[Build System<br/>Automated Testing]
+        D[Collaboration<br/>Team Tools] --> E[Communication<br/>Real-time Chat]
+        B --> C
+        C --> E
+    end
+```
+
+The Team Collaboration components work together to streamline development workflows and enhance team communication. Development Tools integrate with the CI/CD pipeline and version control system, while the Collaboration system facilitates team communication and coordination.
+
+**Technical Details:**
+- CI/CD pipeline includes automated testing with 90% coverage requirement
+- Version control follows Git Flow with protected main branch
+- Build system uses parallel test execution
+- Collaboration tools integrate with JIRA for issue tracking
+- Real-time chat includes automated notifications for critical events
 
 #### Vector Database Integration
 ```mermaid
 graph TD
-    subgraph "Pinecone Configuration"
-        A[Index Setup] --> B[Dimension: 1536]
-        A --> C[Metric: Cosine]
-        A --> D[Pods: 1]
-        A --> E[Replicas: 1]
-    end
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
 
-    subgraph "Scaling & Management"
-        F[Auto-scaling] --> G[Query-based]
-        F --> H[Resource-based]
-        I[Backup] --> J[Daily Snapshots]
-        I --> K[Disaster Recovery]
-    end
-
-    subgraph "Security"
-        L[Access Control] --> M[IAM Roles]
-        L --> N[API Keys]
-        O[Encryption] --> P[At Rest]
-        O --> Q[In Transit]
+    subgraph "Vector Database Integration"
+        A[Pinecone<br/>Vector Store] --> B[Index Management<br/>Auto-scaling]
+        A --> C[Query Processing<br/>Similarity Search]
+        D[Data Pipeline<br/>Embedding Generation] --> E[Document Processing<br/>Text Extraction]
+        B --> C
+        C --> E
     end
 ```
 
-#### AIOps and Monitoring
+The Vector Database components work together to provide efficient document storage and retrieval. Pinecone manages the vector store with automatic scaling, while the Data Pipeline handles document processing and embedding generation.
+
+**Technical Details:**
+- Pinecone index configured with 1536 dimensions and cosine similarity
+- Auto-scaling triggers at 80% capacity with 2x scaling factor
+- Query processing includes approximate nearest neighbor search
+- Embedding generation uses OpenAI's text-embedding-ada-002 model
+- Document processing includes chunking and metadata extraction
+
+#### Monitoring and Analytics Integration
 ```mermaid
 graph TD
-    subgraph "Predictive Analytics"
-        A[Isolation Forest] --> B[Anomaly Detection]
-        C[Prophet] --> D[Metric Forecasting]
-        E[Performance Analysis] --> F[Optimization]
-    end
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
 
-    subgraph "Automated Remediation"
-        G[High CPU] --> H[Scale Out]
-        I[High Memory] --> J[Increase Allocation]
-        K[High Latency] --> L[Optimize Queries]
-    end
-
-    subgraph "Monitoring"
-        M[CloudWatch] --> N[Logs]
-        M --> O[Metrics]
-        P[Prometheus] --> Q[Time Series]
-        R[Grafana] --> S[Dashboards]
+    subgraph "Monitoring and Analytics Integration"
+        A[CloudWatch<br/>Metrics Collection] --> B[Log Analysis<br/>Pattern Detection]
+        A --> C[Alert Management<br/>Notification System]
+        D[Grafana<br/>Visualization] --> E[Dashboard<br/>Real-time Monitoring]
+        B --> C
+        C --> E
     end
 ```
 
-#### Security and Compliance
-```mermaid
-graph TD
-    subgraph "Security Services"
-        A[Security Hub] --> B[Findings]
-        C[GuardDuty] --> D[Threat Detection]
-        E[WAF] --> F[Web Protection]
-    end
+The Monitoring and Analytics components work together to provide comprehensive system observability. CloudWatch collects metrics and logs, while Grafana provides visualization and alerting capabilities.
 
-    subgraph "Compliance"
-        G[AWS Config] --> H[Rules]
-        I[CloudTrail] --> J[Audit Logs]
-        K[KMS] --> L[Encryption]
-    end
-
-    subgraph "Network Security"
-        M[VPC] --> N[Subnets]
-        O[NACLs] --> P[Access Control]
-        Q[Security Groups] --> R[Traffic Rules]
-    end
-```
-
-#### Team Collaboration
-```mermaid
-graph TD
-    subgraph "Development Tools"
-        A[CodeCommit] --> B[Version Control]
-        C[CodeBuild] --> D[CI/CD]
-        E[CodePipeline] --> F[Deployment]
-    end
-
-    subgraph "Collaboration"
-        G[Chime] --> H[Team Channels]
-        I[SNS] --> J[Notifications]
-        K[SQS] --> L[Task Management]
-    end
-
-    subgraph "Monitoring"
-        M[Dashboards] --> N[Team Metrics]
-        O[Reports] --> P[Performance]
-        Q[Alerts] --> R[Incidents]
-    end
-```
+**Technical Details:**
+- CloudWatch collects metrics at 1-minute intervals
+- Log analysis uses pattern matching with 95% confidence threshold
+- Alert system includes escalation policies and on-call rotation
+- Grafana dashboards refresh every 30 seconds
+- Monitoring includes custom metrics for AI model performance
 
 ## System Components
 

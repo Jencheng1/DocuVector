@@ -961,4 +961,137 @@ POST /v1/graphql
    - Regular updates
    - Monitor metrics
    - Review logs
-   - Test backups 
+   - Test backups
+
+### Infrastructure as Code (IaC) Flow
+
+#### Jenkins Pipeline Flow
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+    style G fill:#f9f,stroke:#333,stroke-width:2px
+    style H fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Jenkins Pipeline"
+        A[Source Code<br/>GitHub] --> B[Build Stage<br/>Docker Image]
+        B --> C[Test Stage<br/>Unit & Integration]
+        C --> D[Terraform Stage<br/>Infrastructure]
+        D --> E[Ansible Stage<br/>Configuration]
+        E --> F[Deploy Stage<br/>ECS]
+        F --> G[Verify Stage<br/>Health Checks]
+        G --> H[Notify Stage<br/>Slack/Email]
+    end
+```
+
+The Jenkins Pipeline orchestrates the entire deployment process, from source code to production deployment. Each stage is automated and includes validation steps to ensure successful deployment.
+
+**Technical Details:**
+- Pipeline triggers on main branch commits
+- Parallel test execution
+- Infrastructure validation before deployment
+- Automated rollback on failure
+- Integration with monitoring systems
+
+#### Terraform Infrastructure Flow
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+    style G fill:#f9f,stroke:#333,stroke-width:2px
+    style H fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Terraform Infrastructure"
+        A[VPC<br/>Network] --> B[Subnets<br/>Public/Private]
+        A --> C[Security Groups<br/>Firewall Rules]
+        D[ECS<br/>Container Service] --> E[Task Definitions<br/>Container Config]
+        D --> F[Services<br/>Application Deploy]
+        G[S3<br/>Storage] --> H[Backups<br/>Data Persistence]
+        B --> D
+        C --> D
+        E --> F
+        F --> H
+    end
+```
+
+The Terraform Infrastructure defines the cloud resources required for the application, including networking, compute, and storage components.
+
+**Technical Details:**
+- VPC with public and private subnets
+- ECS cluster with auto-scaling
+- S3 buckets for backups and artifacts
+- Security groups with least privilege
+- IAM roles and policies
+
+#### Ansible Configuration Flow
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+    style G fill:#f9f,stroke:#333,stroke-width:2px
+    style H fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "Ansible Configuration"
+        A[Inventory<br/>Host Management] --> B[Playbooks<br/>Configuration]
+        B --> C[Roles<br/>Reusable Tasks]
+        D[Variables<br/>Environment Config] --> E[Templates<br/>Dynamic Config]
+        F[Handlers<br/>Service Control] --> G[Tasks<br/>Execution Steps]
+        C --> E
+        E --> G
+        G --> H[Services<br/>Application State]
+    end
+```
+
+The Ansible Configuration manages the application and system configuration across all environments, ensuring consistency and reliability.
+
+**Technical Details:**
+- Environment-specific variables
+- Role-based configuration
+- Service management
+- Configuration templates
+- Automated validation
+
+#### IaC Integration Flow
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+    style G fill:#f9f,stroke:#333,stroke-width:2px
+    style H fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "IaC Integration"
+        A[Jenkins<br/>Pipeline] --> B[Terraform<br/>Infrastructure]
+        A --> C[Ansible<br/>Configuration]
+        B --> D[Cloud Resources<br/>AWS]
+        C --> E[System Config<br/>Servers]
+        D --> F[Application<br/>Deployment]
+        E --> F
+        F --> G[Monitoring<br/>Health Checks]
+        G --> H[Feedback<br/>Pipeline Status]
+    end
+```
+
+The IaC Integration flow shows how Jenkins, Terraform, and Ansible work together to provide a complete infrastructure and deployment solution.
+
+**Technical Details:**
+- Jenkins triggers Terraform for infrastructure
+- Terraform provisions cloud resources
+- Ansible configures systems and applications
+- Monitoring provides feedback to pipeline
+- Automated rollback on failure 

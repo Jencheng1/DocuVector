@@ -44,26 +44,49 @@ graph TD
 
     subgraph "Vector Database Layer"
         G --> J[Pinecone]
+        G --> K[Weaviate]
     end
 
     subgraph "Infrastructure Layer"
-        K[ECS] --> L[Auto Scaling]
-        M[CloudWatch] --> N[Monitoring]
-        O[Security Hub] --> P[Compliance]
+        L[ECS] --> M[Auto Scaling]
+        N[CloudWatch] --> O[Monitoring]
+        P[Security Hub] --> Q[Compliance]
     end
 
     subgraph "AIOps Layer"
-        Q[Predictive Analytics] --> R[Automated Remediation]
-        S[Team Tools] --> T[Collaboration]
+        R[Predictive Analytics] --> S[Automated Remediation]
+        T[Team Tools] --> U[Collaboration]
+    end
+
+    subgraph "IaC Layer"
+        V[Jenkins] --> W[Terraform]
+        V --> X[Ansible]
+        W --> Y[Cloud Resources]
+        X --> Z[System Config]
+        Y --> L
+        Z --> L
     end
 
     E --> J
+    E --> K
     F --> J
-    D --> K
-    K --> M
-    M --> Q
-    Q --> S
+    F --> K
+    D --> L
+    L --> N
+    N --> R
+    R --> T
+    W --> P
+    X --> P
 ```
+
+The architecture diagram now includes the IaC Layer, showing how Jenkins orchestrates the deployment process using Terraform for infrastructure provisioning and Ansible for configuration management. The IaC components integrate with the Infrastructure Layer and Security Hub to ensure secure and consistent deployments.
+
+**Technical Details:**
+- Jenkins Pipeline: Automated CI/CD with parallel stages
+- Terraform: Infrastructure as Code with state management
+- Ansible: Configuration management with idempotent tasks
+- Integration with monitoring and security systems
+- Automated validation and rollback capabilities
 
 ### Detailed Component Diagrams
 
@@ -988,14 +1011,65 @@ graph TD
     end
 ```
 
-The Jenkins Pipeline orchestrates the entire deployment process, from source code to production deployment. Each stage is automated and includes validation steps to ensure successful deployment.
-
-**Technical Details:**
-- Pipeline triggers on main branch commits
-- Parallel test execution
-- Infrastructure validation before deployment
-- Automated rollback on failure
-- Integration with monitoring systems
+**Example Pipeline Configuration:**
+```groovy
+pipeline {
+    agent any
+    environment {
+        AWS_REGION = 'us-east-1'
+        ECR_REPOSITORY = 'docuvector'
+        ECS_CLUSTER = 'docuvector-cluster'
+        ECS_SERVICE = 'docuvector-service'
+    }
+    stages {
+        stage('Build') {
+            steps {
+                sh 'docker build -t ${ECR_REPOSITORY}:${BUILD_NUMBER} .'
+            }
+        }
+        stage('Test') {
+            parallel {
+                stage('Unit Tests') {
+                    steps {
+                        sh 'python -m pytest tests/unit/'
+                    }
+                }
+                stage('Integration Tests') {
+                    steps {
+                        sh 'python -m pytest tests/integration/'
+                    }
+                }
+            }
+        }
+        stage('Terraform') {
+            steps {
+                dir('infrastructure') {
+                    sh 'terraform init'
+                    sh 'terraform plan -out=tfplan'
+                    sh 'terraform apply -auto-approve tfplan'
+                }
+            }
+        }
+        stage('Ansible') {
+            steps {
+                dir('ansible') {
+                    sh 'ansible-playbook -i inventory/hosts deploy.yml'
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh """
+                    aws ecs update-service \
+                        --cluster ${ECS_CLUSTER} \
+                        --service ${ECS_SERVICE} \
+                        --force-new-deployment
+                """
+            }
+        }
+    }
+}
+```
 
 #### Terraform Infrastructure Flow
 ```mermaid
@@ -1022,14 +1096,44 @@ graph TD
     end
 ```
 
-The Terraform Infrastructure defines the cloud resources required for the application, including networking, compute, and storage components.
+**Example Terraform Configuration:**
+```hcl
+# VPC Configuration
+resource "aws_vpc" "main" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
+  tags = {
+    Name = "docuvector-vpc"
+  }
+}
 
-**Technical Details:**
-- VPC with public and private subnets
-- ECS cluster with auto-scaling
-- S3 buckets for backups and artifacts
-- Security groups with least privilege
-- IAM roles and policies
+# ECS Cluster
+resource "aws_ecs_cluster" "main" {
+  name = "docuvector-cluster"
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+}
+
+# ECS Task Definition
+resource "aws_ecs_task_definition" "app" {
+  family                   = "docuvector"
+  network_mode            = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                     = 1024
+  memory                  = 2048
+  execution_role_arn      = aws_iam_role.ecs_execution_role.arn
+  container_definitions   = jsonencode([{
+    name  = "docuvector"
+    image = "${aws_ecr_repository.main.repository_url}:latest"
+    portMappings = [{
+      containerPort = 8000
+      hostPort      = 8000
+    }]
+  }])
+}
+```
 
 #### Ansible Configuration Flow
 ```mermaid
@@ -1054,14 +1158,45 @@ graph TD
     end
 ```
 
-The Ansible Configuration manages the application and system configuration across all environments, ensuring consistency and reliability.
+**Example Ansible Playbook:**
+```yaml
+---
+- name: Configure DocuVector
+  hosts: all
+  become: yes
+  vars:
+    app_version: "1.0.0"
+    app_port: 8000
+    app_env: "production"
 
-**Technical Details:**
-- Environment-specific variables
-- Role-based configuration
-- Service management
-- Configuration templates
-- Automated validation
+  roles:
+    - common
+    - docker
+    - app
+
+  tasks:
+    - name: Install dependencies
+      apt:
+        name: "{{ packages }}"
+        state: present
+      vars:
+        packages:
+          - python3-pip
+          - docker.io
+          - docker-compose
+
+    - name: Configure application
+      template:
+        src: templates/app.conf.j2
+        dest: /etc/docuvector/app.conf
+        mode: '0644'
+
+    - name: Start application
+      service:
+        name: docuvector
+        state: started
+        enabled: yes
+```
 
 #### IaC Integration Flow
 ```mermaid
@@ -1087,11 +1222,38 @@ graph TD
     end
 ```
 
-The IaC Integration flow shows how Jenkins, Terraform, and Ansible work together to provide a complete infrastructure and deployment solution.
+**Example Integration Workflow:**
+1. **Jenkins Pipeline Trigger**
+   ```groovy
+   triggers {
+       githubPush()
+   }
+   ```
 
-**Technical Details:**
-- Jenkins triggers Terraform for infrastructure
-- Terraform provisions cloud resources
-- Ansible configures systems and applications
-- Monitoring provides feedback to pipeline
-- Automated rollback on failure 
+2. **Terraform State Management**
+   ```hcl
+   terraform {
+     backend "s3" {
+       bucket = "docuvector-terraform-state"
+       key    = "terraform.tfstate"
+       region = "us-east-1"
+     }
+   }
+   ```
+
+3. **Ansible Dynamic Inventory**
+   ```yaml
+   plugin: aws_ec2
+   regions:
+     - us-east-1
+   filters:
+     tag:Environment: production
+   ```
+
+4. **Monitoring Integration**
+   ```yaml
+   - name: Configure CloudWatch Agent
+     cloudwatch_agent:
+       state: present
+       config_file: /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+   ``` 

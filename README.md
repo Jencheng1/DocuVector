@@ -1256,4 +1256,197 @@ graph TD
      cloudwatch_agent:
        state: present
        config_file: /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
-   ``` 
+   ```
+
+### EKS Integration and Scaling
+
+#### EKS Cluster Architecture
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+    style G fill:#f9f,stroke:#333,stroke-width:2px
+    style H fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "EKS Cluster"
+        A[Control Plane<br/>Managed by AWS] --> B[Worker Nodes<br/>Auto-scaling Group]
+        B --> C[Node Groups<br/>GPU/CPU Optimized]
+        D[Cluster Autoscaler<br/>Horizontal Scaling] --> E[Pod Autoscaler<br/>Vertical Scaling]
+        F[Load Balancer<br/>ALB/NLB] --> G[Ingress Controller<br/>Traffic Management]
+        H[Monitoring<br/>Prometheus/Grafana] --> A
+        H --> B
+    end
+```
+
+**Technical Details:**
+- EKS version: 1.28
+- Node groups: GPU-optimized for ML workloads
+- Auto-scaling: 2-10 nodes based on demand
+- Pod resource limits: CPU 2, Memory 8Gi
+- Network policy: Calico CNI
+- Storage: EBS CSI driver with gp3 volumes
+
+#### EKS Deployment Flow
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+    style G fill:#f9f,stroke:#333,stroke-width:2px
+    style H fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "EKS Deployment"
+        A[Code Push<br/>GitHub] --> B[CI/CD Pipeline<br/>Jenkins/ArgoCD]
+        B --> C[Image Build<br/>Docker]
+        C --> D[Image Push<br/>ECR]
+        D --> E[Helm Chart<br/>Deployment]
+        E --> F[K8s Resources<br/>Apply]
+        F --> G[Health Checks<br/>Readiness]
+        G --> H[Monitoring<br/>Prometheus]
+    end
+```
+
+**Example EKS Configuration:**
+```hcl
+# EKS Cluster
+resource "aws_eks_cluster" "docuvector" {
+  name     = "docuvector-cluster"
+  role_arn = aws_iam_role.eks_cluster.arn
+  version  = "1.28"
+
+  vpc_config {
+    subnet_ids = [aws_subnet.private[*].id]
+    security_group_ids = [aws_security_group.eks_cluster.id]
+  }
+
+  enabled_cluster_log_types = ["api", "audit", "authenticator"]
+}
+
+# Node Group
+resource "aws_eks_node_group" "gpu" {
+  cluster_name    = aws_eks_cluster.docuvector.name
+  node_group_name = "gpu-nodes"
+  node_role_arn   = aws_iam_role.eks_node.arn
+  subnet_ids      = aws_subnet.private[*].id
+
+  scaling_config {
+    desired_size = 2
+    max_size     = 10
+    min_size     = 2
+  }
+
+  instance_types = ["g4dn.xlarge"]
+  capacity_type  = "ON_DEMAND"
+}
+```
+
+#### ML Workload Optimization
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "ML Workload Management"
+        A[Resource Allocation<br/>GPU/CPU] --> B[Batch Processing<br/>Job Scheduling]
+        A --> C[Model Serving<br/>Inference]
+        D[Auto-scaling<br/>HPA/VPA] --> E[Resource Optimization<br/>Cost Efficiency]
+        D --> F[Performance<br/>Monitoring]
+    end
+```
+
+**Technical Details:**
+- GPU utilization monitoring
+- Batch job scheduling with Kueue
+- Model serving with KServe
+- Resource quotas and limits
+- Cost optimization strategies
+
+#### FAISS Integration
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "FAISS Vector Store"
+        A[Index Management<br/>IVF/PQ] --> B[Query Processing<br/>ANN Search]
+        A --> C[Index Updates<br/>Incremental]
+        D[Performance<br/>Optimization] --> E[GPU Acceleration<br/>CUDA]
+        D --> F[Memory Management<br/>Efficient]
+    end
+```
+
+**Technical Details:**
+- FAISS index type: IVF4096,PQ16
+- GPU acceleration with CUDA
+- Batch processing for updates
+- Memory-efficient storage
+- Query optimization
+
+#### LLM Integration
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "LLM Integration"
+        A[Model Serving<br/>Triton] --> B[Prompt Engineering<br/>Optimization]
+        A --> C[Response Generation<br/>Streaming]
+        D[Fine-tuning<br/>LoRA/QLoRA] --> E[Model Optimization<br/>Quantization]
+        D --> F[Version Control<br/>MLflow]
+    end
+```
+
+**Technical Details:**
+- Model serving with Triton
+- Prompt optimization techniques
+- Response streaming
+- Fine-tuning with LoRA
+- Model versioning
+
+#### AI Ethics and Governance
+```mermaid
+graph TD
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+
+    subgraph "AI Ethics Framework"
+        A[Bias Detection<br/>Fairness] --> B[Content Analysis<br/>Patterns]
+        A --> C[Fairness Metrics<br/>Statistics]
+        D[Compliance<br/>Monitoring] --> E[Audit Trail<br/>Logging]
+        D --> F[Risk Assessment<br/>Scoring]
+    end
+```
+
+**Technical Details:**
+- Bias detection algorithms
+- Fairness metrics calculation
+- Compliance monitoring
+- Audit trail generation
+- Risk assessment framework
+
+## Contact
+
+For questions or support, please open an issue in the repository. 

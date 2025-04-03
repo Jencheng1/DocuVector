@@ -1,0 +1,98 @@
+---
+- name: Configure Weaviate
+  hosts: weaviate
+  become: yes
+  vars:
+    weaviate_version: "1.19.0"
+    weaviate_data_dir: "/var/lib/weaviate"
+    weaviate_config_dir: "/etc/weaviate"
+    weaviate_port: 8080
+
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - docker.io
+          - docker-compose
+          - python3-pip
+        state: present
+        update_cache: yes
+
+    - name: Install Docker Python SDK
+      pip:
+        name: docker
+        state: present
+
+    - name: Create Weaviate directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      with_items:
+        - "{{ weaviate_data_dir }}"
+        - "{{ weaviate_config_dir }}"
+
+    - name: Create Weaviate configuration file
+      template:
+        src: templates/weaviate-config.json.j2
+        dest: "{{ weaviate_config_dir }}/config.json"
+        mode: '0644'
+
+    - name: Create Weaviate Docker Compose file
+      template:
+        src: templates/docker-compose.yml.j2
+        dest: "{{ weaviate_config_dir }}/docker-compose.yml"
+        mode: '0644'
+
+    - name: Start Weaviate container
+      docker_compose:
+        project_src: "{{ weaviate_config_dir }}"
+        state: present
+        restarted: yes
+
+    - name: Wait for Weaviate to be ready
+      uri:
+        url: "http://localhost:{{ weaviate_port }}/v1/meta"
+        method: GET
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 10
+      delay: 10
+
+    - name: Create Weaviate schema
+      uri:
+        url: "http://localhost:{{ weaviate_port }}/v1/schema"
+        method: POST
+        body: "{{ lookup('file', 'templates/schema.json') | from_json }}"
+        body_format: json
+        status_code: 200
+      register: schema_result
+      when: schema_result.status == 200
+
+    - name: Configure Weaviate backup
+      template:
+        src: templates/backup-script.sh.j2
+        dest: "/usr/local/bin/weaviate-backup.sh"
+        mode: '0755'
+
+    - name: Add backup cron job
+      cron:
+        name: "Weaviate backup"
+        job: "/usr/local/bin/weaviate-backup.sh"
+        hour: "2"
+        minute: "0"
+        state: present
+
+    - name: Configure monitoring
+      template:
+        src: templates/prometheus.yml.j2
+        dest: "/etc/prometheus/prometheus.yml"
+        mode: '0644'
+      notify: restart prometheus
+
+  handlers:
+    - name: restart prometheus
+      service:
+        name: prometheus
+        state: restarted 

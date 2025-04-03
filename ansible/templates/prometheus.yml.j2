@@ -1,0 +1,23 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'weaviate'
+    static_configs:
+      - targets: ['localhost:2112']
+    metrics_path: '/metrics'
+    scheme: 'http'
+
+  - job_name: 'node'
+    static_configs:
+      - targets: ['localhost:9100']
+
+rule_files:
+  - 'weaviate_alerts.yml'
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - 'localhost:9093' 

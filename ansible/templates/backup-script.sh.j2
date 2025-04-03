@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Configuration
+WEAVIATE_HOST="localhost"
+WEAVIATE_PORT="{{ weaviate_port }}"
+BACKUP_DIR="{{ weaviate_data_dir }}/backups"
+DATE=$(date +%Y%m%d_%H%M%S)
+BACKUP_NAME="weaviate_backup_${DATE}"
+
+# Create backup directory if it doesn't exist
+mkdir -p "${BACKUP_DIR}"
+
+# Create backup
+curl -X POST "http://${WEAVIATE_HOST}:${WEAVIATE_PORT}/v1/backups/filesystem" \
+  -H "Content-Type: application/json" \
+  -d "{\"id\": \"${BACKUP_NAME}\", \"path\": \"${BACKUP_DIR}\"}"
+
+# Check backup status
+STATUS=$(curl -s "http://${WEAVIATE_HOST}:${WEAVIATE_PORT}/v1/backups/filesystem/${BACKUP_NAME}" | jq -r '.status')
+
+if [ "$STATUS" = "SUCCESS" ]; then
+    echo "Backup completed successfully: ${BACKUP_NAME}"
+    
+    # Clean up old backups (keep last 7 days)
+    find "${BACKUP_DIR}" -type d -name "weaviate_backup_*" -mtime +7 -exec rm -rf {} \;
+else
+    echo "Backup failed: ${BACKUP_NAME}"
+    exit 1
+fi 

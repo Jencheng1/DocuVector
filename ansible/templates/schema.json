@@ -1,0 +1,53 @@
+{
+  "classes": [
+    {
+      "class": "Document",
+      "description": "A document containing text content",
+      "vectorizer": "text2vec-transformers",
+      "properties": [
+        {
+          "name": "content",
+          "dataType": ["text"],
+          "description": "The content of the document"
+        },
+        {
+          "name": "title",
+          "dataType": ["string"],
+          "description": "The title of the document"
+        },
+        {
+          "name": "source",
+          "dataType": ["string"],
+          "description": "The source of the document"
+        },
+        {
+          "name": "createdAt",
+          "dataType": ["date"],
+          "description": "When the document was created"
+        }
+      ]
+    },
+    {
+      "class": "Embedding",
+      "description": "Vector embeddings for documents",
+      "vectorizer": "none",
+      "properties": [
+        {
+          "name": "documentId",
+          "dataType": ["string"],
+          "description": "ID of the associated document"
+        },
+        {
+          "name": "model",
+          "dataType": ["string"],
+          "description": "The model used to generate the embedding"
+        },
+        {
+          "name": "createdAt",
+          "dataType": ["date"],
+          "description": "When the embedding was created"
+        }
+      ]
+    }
+  ]
+} 

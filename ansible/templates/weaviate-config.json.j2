@@ -1,0 +1,33 @@
+{
+  "authentication": {
+    "anonymous_access": {
+      "enabled": true
+    }
+  },
+  "persistence": {
+    "data_path": "{{ weaviate_data_dir }}"
+  },
+  "cluster": {
+    "hostname": "node1"
+  },
+  "telemetry": {
+    "enabled": true
+  },
+  "monitoring": {
+    "enabled": true,
+    "port": 2112
+  },
+  "backup": {
+    "filesystem": {
+      "path": "{{ weaviate_data_dir }}/backups"
+    }
+  },
+  "graphql": {
+    "explore": {
+      "limit": 100
+    }
+  },
+  "vector_cache": {
+    "max_size": 1000000
+  }
+} 

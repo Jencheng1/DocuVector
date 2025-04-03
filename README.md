@@ -22,6 +22,7 @@ DocuVector is an advanced document intelligence system that leverages Generative
 
 ## Architecture
 
+### High-Level Architecture
 ```mermaid
 graph TD
     subgraph "Client Layer"
@@ -37,44 +38,156 @@ graph TD
     end
 
     subgraph "AI/ML Layer"
-        F --> H[LangChain Chains]
-        H --> I[Custom Tools]
-        H --> J[Agents]
-        H --> K[Memory Management]
-        F --> L[Model Registry]
-        L --> M[MLflow Tracking]
-        L --> N[DVC Versioning]
+        F --> H[LangChain]
+        F --> I[Model Registry]
     end
 
     subgraph "Vector Database Layer"
-        G --> O[Pinecone]
-        O --> P[Index Management]
-        O --> Q[Scaling Policies]
-        O --> R[Backup System]
+        G --> J[Pinecone]
     end
 
     subgraph "Infrastructure Layer"
-        S[ECS Cluster] --> T[Auto Scaling]
-        S --> U[Load Balancer]
-        V[CloudWatch] --> W[Monitoring]
-        V --> X[Logging]
-        Y[Security Hub] --> Z[Compliance]
+        K[ECS] --> L[Auto Scaling]
+        M[CloudWatch] --> N[Monitoring]
+        O[Security Hub] --> P[Compliance]
     end
 
     subgraph "AIOps Layer"
-        AA[Predictive Analytics] --> AB[Anomaly Detection]
-        AA --> AC[Metric Forecasting]
-        AA --> AD[Automated Remediation]
-        AE[Team Collaboration] --> AF[Incident Response]
-        AE --> AG[Code Review]
+        Q[Predictive Analytics] --> R[Automated Remediation]
+        S[Team Tools] --> T[Collaboration]
     end
 
-    E --> O
-    F --> O
-    D --> S
-    S --> V
-    V --> AA
-    AA --> AE
+    E --> J
+    F --> J
+    D --> K
+    K --> M
+    M --> Q
+    Q --> S
+```
+
+### Detailed Component Diagrams
+
+#### AI/ML Pipeline
+```mermaid
+graph TD
+    subgraph "LangChain Integration"
+        A[Sequential Chain] --> B[Document Processing]
+        A --> C[Information Extraction]
+        D[Router Chain] --> E[Query Routing]
+        D --> F[Task Distribution]
+        G[Custom Tools] --> H[Vector Search]
+        G --> I[Document Processing]
+        J[Agents] --> K[Task Execution]
+        J --> L[Decision Making]
+    end
+
+    subgraph "Model Management"
+        M[MLflow] --> N[Experiment Tracking]
+        M --> O[Model Registry]
+        P[DVC] --> Q[Data Versioning]
+        P --> R[Pipeline Versioning]
+        S[Fine-tuning] --> T[Model Optimization]
+        S --> U[Performance Tuning]
+    end
+
+    subgraph "Ethics & Governance"
+        V[Bias Detection] --> W[Content Analysis]
+        V --> X[Fairness Metrics]
+        Y[Ethics Monitoring] --> Z[Compliance Checks]
+        Y --> AA[Risk Assessment]
+    end
+```
+
+#### Vector Database Integration
+```mermaid
+graph TD
+    subgraph "Pinecone Configuration"
+        A[Index Setup] --> B[Dimension: 1536]
+        A --> C[Metric: Cosine]
+        A --> D[Pods: 1]
+        A --> E[Replicas: 1]
+    end
+
+    subgraph "Scaling & Management"
+        F[Auto-scaling] --> G[Query-based]
+        F --> H[Resource-based]
+        I[Backup] --> J[Daily Snapshots]
+        I --> K[Disaster Recovery]
+    end
+
+    subgraph "Security"
+        L[Access Control] --> M[IAM Roles]
+        L --> N[API Keys]
+        O[Encryption] --> P[At Rest]
+        O --> Q[In Transit]
+    end
+```
+
+#### AIOps and Monitoring
+```mermaid
+graph TD
+    subgraph "Predictive Analytics"
+        A[Isolation Forest] --> B[Anomaly Detection]
+        C[Prophet] --> D[Metric Forecasting]
+        E[Performance Analysis] --> F[Optimization]
+    end
+
+    subgraph "Automated Remediation"
+        G[High CPU] --> H[Scale Out]
+        I[High Memory] --> J[Increase Allocation]
+        K[High Latency] --> L[Optimize Queries]
+    end
+
+    subgraph "Monitoring"
+        M[CloudWatch] --> N[Logs]
+        M --> O[Metrics]
+        P[Prometheus] --> Q[Time Series]
+        R[Grafana] --> S[Dashboards]
+    end
+```
+
+#### Security and Compliance
+```mermaid
+graph TD
+    subgraph "Security Services"
+        A[Security Hub] --> B[Findings]
+        C[GuardDuty] --> D[Threat Detection]
+        E[WAF] --> F[Web Protection]
+    end
+
+    subgraph "Compliance"
+        G[AWS Config] --> H[Rules]
+        I[CloudTrail] --> J[Audit Logs]
+        K[KMS] --> L[Encryption]
+    end
+
+    subgraph "Network Security"
+        M[VPC] --> N[Subnets]
+        O[NACLs] --> P[Access Control]
+        Q[Security Groups] --> R[Traffic Rules]
+    end
+```
+
+#### Team Collaboration
+```mermaid
+graph TD
+    subgraph "Development Tools"
+        A[CodeCommit] --> B[Version Control]
+        C[CodeBuild] --> D[CI/CD]
+        E[CodePipeline] --> F[Deployment]
+    end
+
+    subgraph "Collaboration"
+        G[Chime] --> H[Team Channels]
+        I[SNS] --> J[Notifications]
+        K[SQS] --> L[Task Management]
+    end
+
+    subgraph "Monitoring"
+        M[Dashboards] --> N[Team Metrics]
+        O[Reports] --> P[Performance]
+        Q[Alerts] --> R[Incidents]
+    end
 ```
 
 ## System Components

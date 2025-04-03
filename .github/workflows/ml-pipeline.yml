@@ -1,0 +1,159 @@
+name: AI/ML Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: docuvector
+  MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+  SAGEMAKER_ROLE: ${{ secrets.SAGEMAKER_ROLE }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov mlflow
+          
+      - name: Run tests
+        run: |
+          pytest --cov=app tests/
+          
+      - name: Upload coverage
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  train-model:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+          
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install mlflow boto3
+          
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          
+      - name: Train model
+        run: |
+          python scripts/train_model.py
+          mlflow models build-docker -m "runs:/${{ github.sha }}/model" -n "docuvector-model"
+          
+      - name: Push model to ECR
+        run: |
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+          docker tag docuvector-model:latest ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}-model:${{ github.sha }}
+          docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}-model:${{ github.sha }}
+
+  deploy-model:
+    needs: train-model
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          
+      - name: Deploy to SageMaker
+        run: |
+          aws sagemaker create-model \
+            --model-name docuvector-model-${{ github.sha }} \
+            --primary-container Image=${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}-model:${{ github.sha }}
+          
+          aws sagemaker create-endpoint-config \
+            --endpoint-config-name docuvector-endpoint-config-${{ github.sha }} \
+            --production-variants VariantName=variant-1,ModelName=docuvector-model-${{ github.sha }},InitialInstanceCount=1,InstanceType=ml.t2.medium
+          
+          aws sagemaker create-endpoint \
+            --endpoint-name docuvector-endpoint \
+            --endpoint-config-name docuvector-endpoint-config-${{ github.sha }}
+
+  monitor-model:
+    needs: deploy-model
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          
+      - name: Set up monitoring
+        run: |
+          python scripts/setup_monitoring.py
+          
+      - name: Deploy monitoring dashboard
+        run: |
+          aws cloudformation deploy \
+            --template-file monitoring/dashboard.yaml \
+            --stack-name docuvector-monitoring \
+            --capabilities CAPABILITY_IAM
+
+  validate-model:
+    needs: deploy-model
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+          
+      - name: Run model validation
+        run: |
+          python scripts/validate_model.py
+          
+      - name: Check model performance
+        run: |
+          python scripts/check_performance.py
+          
+      - name: Generate validation report
+        run: |
+          python scripts/generate_report.py 

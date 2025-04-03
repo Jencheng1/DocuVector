@@ -624,64 +624,6 @@ graph TD
 
 The Data Pipeline components work together to handle data ingestion, processing, and storage. The system ensures data quality and provides secure access through APIs.
 
-**Technical Details:**
-- Data ingestion from multiple sources with validation
-- ETL pipeline with error handling and retry logic
-- Data quality checks with automated alerts
-- S3 for unstructured data, RDS for structured data
-- API layer with rate limiting and authentication
-
-## Technologies Used
-- **AI/ML**: LangChain, Bedrock, MLflow, DVC
-- **Vector Databases**: Pinecone
-- **Cloud Services**: AWS (ECS, S3, Lambda, SageMaker)
-- **Monitoring**: CloudWatch, Prometheus, Grafana
-- **CI/CD**: GitHub Actions, Terraform
-- **Security**: AWS Security Hub, GuardDuty, WAF
-
-## Setup Instructions
-1. Clone the repository
-2. Install dependencies: `pip install -r requirements.txt`
-3. Configure AWS credentials
-4. Set up MLflow tracking server
-5. Initialize Pinecone
-6. Deploy infrastructure: `terraform apply`
-
-## Development Guide
-1. Set up development environment
-2. Follow coding standards
-3. Write tests for new features
-4. Use pre-commit hooks
-5. Document changes
-
-## Deployment
-1. Run tests: `pytest`
-2. Build containers: `docker build`
-3. Deploy to ECS: `terraform apply`
-4. Verify deployment
-5. Monitor initial metrics
-
-## Monitoring and Maintenance
-1. Check CloudWatch dashboards
-2. Review security findings
-3. Monitor model performance
-4. Update documentation
-5. Perform regular backups
-
-## Contributing
-1. Fork the repository
-2. Create feature branch
-3. Submit pull request
-4. Address review comments
-5. Merge after approval
-
-## License
-MIT License
-
-## Contact
-For questions or support, please open an issue in the repository.
-
-## Architecture
 
 ### Infrastructure as Code (IaC) Flow
 
@@ -1125,3 +1067,60 @@ spec:
           initialDelaySeconds: 15
           periodSeconds: 20
 ``` 
+
+**Technical Details:**
+- Data ingestion from multiple sources with validation
+- ETL pipeline with error handling and retry logic
+- Data quality checks with automated alerts
+- S3 for unstructured data, RDS for structured data
+- API layer with rate limiting and authentication
+
+## Technologies Used
+- **AI/ML**: LangChain, Bedrock, MLflow, DVC
+- **Vector Databases**: Pinecone
+- **Cloud Services**: AWS (ECS, S3, Lambda, SageMaker)
+- **Monitoring**: CloudWatch, Prometheus, Grafana
+- **CI/CD**: GitHub Actions, Terraform
+- **Security**: AWS Security Hub, GuardDuty, WAF
+
+## Setup Instructions
+1. Clone the repository
+2. Install dependencies: `pip install -r requirements.txt`
+3. Configure AWS credentials
+4. Set up MLflow tracking server
+5. Initialize Pinecone
+6. Deploy infrastructure: `terraform apply`
+
+## Development Guide
+1. Set up development environment
+2. Follow coding standards
+3. Write tests for new features
+4. Use pre-commit hooks
+5. Document changes
+
+## Deployment
+1. Run tests: `pytest`
+2. Build containers: `docker build`
+3. Deploy to ECS: `terraform apply`
+4. Verify deployment
+5. Monitor initial metrics
+
+## Monitoring and Maintenance
+1. Check CloudWatch dashboards
+2. Review security findings
+3. Monitor model performance
+4. Update documentation
+5. Perform regular backups
+
+## Contributing
+1. Fork the repository
+2. Create feature branch
+3. Submit pull request
+4. Address review comments
+5. Merge after approval
+
+## License
+MIT License
+
+## Contact
+For questions or support, please open an issue in the repository.
